@@ -5,7 +5,7 @@
 
 import * as YoctoColors from 'yoctocolors'
 
-import {addContributorWithDetails} from './contributors/addWithDetails.js'
+import {addContributorWithDetails} from './contributors/add.js'
 import {generate} from './generate/index.js'
 import {addContributorsList, addBadge} from './init/init-content.js'
 

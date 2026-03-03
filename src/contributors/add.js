@@ -1,8 +1,8 @@
-function uniqueTypes(contribution) {
+export function uniqueTypes(contribution) {
   return contribution.type || contribution
 }
 
-function formatContributions(options, existing = [], types) {
+export function formatContributions(options, existing = [], types) {
   const same = types.filter(type =>
     existing.some(
       existingType => uniqueTypes(existingType) === uniqueTypes(type),
@@ -30,7 +30,7 @@ function formatContributions(options, existing = [], types) {
   )
 }
 
-function updateContributor(options, contributor, contributions) {
+export function updateContributor(options, contributor, contributions) {
   return {
     ...contributor,
     contributions: formatContributions(
@@ -41,7 +41,7 @@ function updateContributor(options, contributor, contributions) {
   }
 }
 
-function updateExistingContributor(options, username, contributions) {
+export function updateExistingContributor(options, username, contributions) {
   return options.contributors.map(contributor => {
     if (
       !contributor.login ||
@@ -53,7 +53,7 @@ function updateExistingContributor(options, username, contributions) {
   })
 }
 
-function addNewContributor(options, username, contributions, infoFetcher) {
+export function addNewContributor(options, username, contributions, infoFetcher) {
   return infoFetcher(username, options.repoType, options.repoHost).then(
     userData => {
       const contributor = {
@@ -80,4 +80,23 @@ export function add(options, username, contributions, infoFetcher) {
     )
   }
   return addNewContributor(options, username, contributions, infoFetcher)
+}
+
+export function addContributorWithDetails({
+  options,
+  login,
+  contributions,
+  name,
+  avatar_url,
+  profile,
+}) {
+  const infoFetcherNoNetwork = function () {
+    return Promise.resolve({
+      login,
+      name,
+      avatar_url,
+      profile,
+    })
+  }
+  return add(options, login, contributions, infoFetcherNoNetwork)
 }
