@@ -77,7 +77,7 @@ export function getQuestions(options, username, contributions) {
   ]
 }
 
-function getValidUserContributions(options, contributions) {
+export function getValidUserContributions(options, contributions) {
   const validContributionTypes = util.contributionTypes(options)
   const userContributions = contributions && contributions.split(',')
 
@@ -97,7 +97,7 @@ function getValidUserContributions(options, contributions) {
   return validUserContributions
 }
 
-export function prompt(options, username, contributions) {
+export async function prompt(options, username, contributions) {
   const defaults = {
     username,
     contributions:
@@ -106,5 +106,7 @@ export function prompt(options, username, contributions) {
         : getValidUserContributions(options, contributions),
   }
   const questions = getQuestions(options, username, contributions)
-  return inquirer.prompt(questions).then(answers => ({...defaults, ...answers}))
+  const answers = await inquirer.prompt(questions)
+
+  return ({...defaults, ...answers})
 }

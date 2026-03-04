@@ -83,14 +83,12 @@ export function addWithDetails({
   avatar_url,
   profile,
 }) {
-  const infoFetcherNoNetwork = function () {
-    return Promise.resolve({
-      login,
-      name,
-      avatar_url,
-      profile,
-    })
-  }
+  const infoFetcherNoNetwork = () => Promise.resolve({
+    login,
+    name,
+    avatar_url,
+    profile,
+  })
 
   return add(options, login, contributions, infoFetcherNoNetwork)
 }

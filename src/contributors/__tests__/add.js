@@ -1,14 +1,14 @@
 import {describe, it, expect, vi} from 'vitest'
 import {
   add,
+  addWithDetails,
   uniqueTypes,
   formatContributions,
   updateContributor,
   updateExistingContributor,
   addNewContributor,
-  addContributorWithDetails,
 } from '../add.js'
-import fixtures from './fixtures/index.js'
+import { optionsFixture } from './fixtures/index.js'
 
 /**
  * Mock function that simulates fetching contributor info from an API.
@@ -239,34 +239,9 @@ describe('addNewContributor', () => {
   })
 })
 
-describe('addContributorWithDetails', () => {
-  it('should add new contributor without going to the network', async () => {
-    const {options} = fixtures()
-    const userDetails = {
-      login: 'jakebolam',
-      contributions: ['code', 'security'],
-      name: 'Jake Bolam',
-      avatar_url: 'my-avatar.example.com',
-      profile: 'jakebolam.com',
-    }
-
-    const contributors = await addContributorWithDetails({
-      options,
-      login: userDetails.login,
-      contributions: userDetails.contributions,
-      name: userDetails.name,
-      avatar_url: userDetails.avatar_url,
-      profile: userDetails.profile,
-    })
-
-    expect(contributors).toHaveLength(options.contributors.length + 1)
-    expect(contributors[options.contributors.length]).toEqual(userDetails)
-  })
-})
-
 describe('add', () => {
   it('should callback with error if infoFetcher fails', async () => {
-    const {options} = fixtures()
+    const options = optionsFixture()
     const username = 'login3'
     const contributions = ['doc']
     const error = new Error('infoFetcher error')
@@ -284,9 +259,10 @@ describe('add', () => {
   })
 
   it('calls infoFetcher with (username, options.repoType, options.repoHost) when adding new contributor', async () => {
-    const {options} = fixtures()
-    options.repoType = 'github'
-    options.repoHost = 'https://github.com'
+    const options = optionsFixture({
+      repoType: 'github',
+      repoHost: 'https://github.com'
+    })
     const username = 'newuser'
     const contributions = ['doc']
     const infoFetcher = vi.fn().mockResolvedValue({
@@ -306,7 +282,7 @@ describe('add', () => {
   })
 
   it('add new contributor at the end of the list of contributors', () => {
-    const {options} = fixtures()
+    const options = optionsFixture()
     const username = 'login3'
     const contributions = ['doc']
 
@@ -325,7 +301,7 @@ describe('add', () => {
   })
 
   it(`should not update an existing contributor's contributions where nothing has changed`, () => {
-    const {options} = fixtures()
+    const options = optionsFixture()
     const username = 'login2'
     const contributions = ['blog', 'code']
 
@@ -337,9 +313,10 @@ describe('add', () => {
   })
 
   it(`should update an existing contributor's contributions if a new type is added`, () => {
-    const {options} = fixtures()
+    const options = optionsFixture()
     const username = 'login1'
     const contributions = ['bug']
+
     return add(options, username, contributions, mockInfoFetcher).then(
       contributors => {
         expect(contributors).toHaveLength(options.contributors.length)
@@ -355,10 +332,9 @@ describe('add', () => {
   })
 
   it(`should update an existing contributor's contributions if a new type is added with a link`, () => {
-    const {options} = fixtures()
+    const options = optionsFixture({ url: 'www.foo.bar'})
     const username = 'login1'
     const contributions = ['bug']
-    options.url = 'www.foo.bar'
 
     return add(options, username, contributions, mockInfoFetcher).then(
       contributors => {
@@ -375,7 +351,7 @@ describe('add', () => {
   })
 
   it(`should update an existing contributor's contributions if an existing type is removed`, () => {
-    const {options} = fixtures()
+    const options = optionsFixture()
     const username = 'login2'
     const contributions = ['code']
 
@@ -391,5 +367,30 @@ describe('add', () => {
         })
       },
     )
+  })
+})
+
+describe('addWithDetails', () => {
+  it('should add new contributor without going to the network', async () => {
+    const options = optionsFixture()
+    const userDetails = {
+      login: 'jakebolam',
+      contributions: ['code', 'security'],
+      name: 'Jake Bolam',
+      avatar_url: 'my-avatar.example.com',
+      profile: 'jakebolam.com',
+    }
+
+    const contributors = await addWithDetails({
+      options,
+      login: userDetails.login,
+      contributions: userDetails.contributions,
+      name: userDetails.name,
+      avatar_url: userDetails.avatar_url,
+      profile: userDetails.profile,
+    })
+
+    expect(contributors).toHaveLength(options.contributors.length + 1)
+    expect(contributors[options.contributors.length]).toEqual(userDetails)
   })
 })
