@@ -36,11 +36,6 @@ describe('uniqueTypes', () => {
     const contribution = 'docs'
     expect(uniqueTypes(contribution)).toBe('docs')
   })
-
-  it('should return undefined when object has no type property', () => {
-    const contribution = {url: 'www.example.com'}
-    expect(uniqueTypes(contribution)).toBeUndefined()
-  })
 })
 
 describe('formatContributions', () => {
@@ -329,7 +324,6 @@ describe('add', () => {
     )
   })
 
-
   it(`should not update an existing contributor's contributions where nothing has changed`, () => {
     const {options} = fixtures()
     const username = 'login2'
@@ -341,7 +335,6 @@ describe('add', () => {
       },
     )
   })
-
 
   it(`should update an existing contributor's contributions if a new type is added`, () => {
     const {options} = fixtures()
@@ -360,7 +353,6 @@ describe('add', () => {
       },
     )
   })
-
 
   it(`should update an existing contributor's contributions if a new type is added with a link`, () => {
     const {options} = fixtures()

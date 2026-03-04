@@ -23,6 +23,7 @@ export function formatContributions(options, existing = [], types) {
   }
 
   const combined = existing.concat(types)
+
   return combined.filter(
     (item, index, arr) =>
       index ===
@@ -42,47 +43,39 @@ export function updateContributor(options, contributor, contributions) {
 }
 
 export function updateExistingContributor(options, username, contributions) {
-  return options.contributors.map(contributor => {
-    if (
-      !contributor.login ||
-      username.toLowerCase() !== contributor.login.toLowerCase()
-    ) {
-      return contributor
+  return options.contributors.map(c => {
+    if (!c.login || username.toLowerCase() !== c.login.toLowerCase()) {
+      return c
     }
-    return updateContributor(options, contributor, contributions)
+
+    return updateContributor(options, c, contributions)
   })
 }
 
-export function addNewContributor(options, username, contributions, infoFetcher) {
-  return infoFetcher(username, options.repoType, options.repoHost).then(
-    userData => {
-      const contributor = {
-        ...userData,
-        contributions: formatContributions(options, [], contributions),
-      }
-      return options.contributors.concat(contributor)
-    },
-  )
+export async function addNewContributor(options, username, contributions, infoFetcher) {
+  const userData = await infoFetcher(username, options.repoType, options.repoHost)
+  const contributor = {
+    ...userData,
+    contributions: formatContributions(options, [], contributions),
+  }
+
+  return options.contributors.concat(contributor)
 }
 
-export function add(options, username, contributions, infoFetcher) {
-  // case insensitive find
-  const exists = options.contributors.find(contributor => {
-    return (
-      contributor.login &&
-      contributor.login.toLowerCase() === username.toLowerCase()
-    )
-  })
+export async function add(options, username, contributions, infoFetcher) {
+  const exists = options.contributors.find(c => (
+      c.login &&
+      c.login.toLowerCase() === username.toLowerCase()
+  ))
 
   if (exists) {
-    return Promise.resolve(
-      updateExistingContributor(options, username, contributions),
-    )
+    updateExistingContributor(options, username, contributions)
   }
+
   return addNewContributor(options, username, contributions, infoFetcher)
 }
 
-export function addContributorWithDetails({
+export function addWithDetails({
   options,
   login,
   contributions,
@@ -98,5 +91,6 @@ export function addContributorWithDetails({
       profile,
     })
   }
+
   return add(options, login, contributions, infoFetcherNoNetwork)
 }
