@@ -4,12 +4,21 @@ import {add} from './add.js'
 import {prompt} from './prompt.js'
 
 function isNewContributor(contributorList, username) {
-  return !contributorList.find(contributor => contributor.login === username)
+  return !contributorList.find(
+    contributor =>
+      contributor.login &&
+      contributor.login.toLowerCase() === username.toLowerCase(),
+  )
 }
 
 export async function addContributor(options, username, contributions) {
   const answers = await prompt(options, username, contributions)
-  const contributors = await add(options, answers.username, answers.contributions, repo.getUserInfo)
+  const contributors = await add(
+    options,
+    answers.username,
+    answers.contributions,
+    repo.getUserInfo,
+  )
 
   await util.configFile.writeContributors(options.config, contributors)
 
@@ -17,9 +26,6 @@ export async function addContributor(options, username, contributions) {
     username: answers.username,
     contributions: answers.contributions,
     contributors,
-    newContributor: isNewContributor(
-      options.contributors,
-      answers.username,
-    ),
+    newContributor: isNewContributor(options.contributors, answers.username),
   }
 }
